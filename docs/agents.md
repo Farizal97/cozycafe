@@ -1,6 +1,6 @@
 # AGENTS.MD — Blueprint & Step-by-Step Build Prompts for CozyCafe
 
-Dokumen ini berisi instruksi terstruktur (step-by-step prompts) untuk AI Coding Agent (seperti Claude Code, Cursor, atau Windsurf) guna membangun aplikasi **CozyCafe** dari nol hingga siap di-deploy ke server menggunakan **Dokploy**, berdasarkan spesifikasi lengkap pada `PRD.MD`.
+Dokumen ini berisi blueprint dan aturan kerja untuk mengembangkan aplikasi **CozyCafe** berdasarkan spesifikasi `prd.md`. Blueprint awal mencatat target arsitektur; panduan implementasi terkini di bawah mengikuti repository yang sudah berjalan dan tidak meminta pembuatan ulang aplikasi dari nol.
 
 ---
 
@@ -99,7 +99,28 @@ Dokumen ini berisi instruksi terstruktur (step-by-step prompts) untuk AI Coding 
 
 ---
 
-## STEP 5: Shopping Cart (LocalStorage), Promotions, & Guest Checkout
+## Status Implementasi dan Panduan Kerja Repository
 
-**Prompt untuk AI Agent:**
-> "Bangun alur Keranjang Belanja, Perhitungan Diskon/Voucher/Pajak, dan Guest Checkout sesuai PRD Bagian 6.3, 6.4, dan 6.9.
+Bagian blueprint sebelumnya adalah spesifikasi bertahap, bukan instruksi untuk membuat proyek duplikat. Repository sudah memiliki router aktif di `public/index.php`; selalu periksa kode aktual sebelum mengimplementasikan fitur agar tidak mengganti atau menduplikasi pekerjaan yang sudah ada.
+
+### Modul Admin
+
+Semua grup menu sidebar di `resources/views/layouts/admin.php` harus mengarah ke fitur yang dapat dibuka dan dikelola:
+
+- Ringkasan: Dashboard.
+- Operasional: Pesanan dan Pembayaran.
+- Menu & Inventaris: Kategori, Produk, Stok.
+- Reservasi: Reservasi, Meja, Area Reservasi.
+- Pelanggan & Promosi: Pelanggan, Voucher dan Promosi, Ulasan, Testimonial.
+- Analisis: Laporan dan Activity Log.
+- Sistem: Pengaturan Kafe, Akun Admin, Backup dan Restore.
+
+Rute admin harus tetap di balik `AuthMiddleware`; setiap perubahan data harus memakai POST, `CsrfMiddleware`, prepared statement PDO, transaksi database bila beberapa tabel berubah, dan pencatatan `activity_logs`. File backup dan unggahan harus tetap di luar web root. Menu aktif dibuat tebal dan jelas; menu lain tetap mudah dibaca. Gunakan UI admin yang ringan, profesional, responsif, dengan status, filter, empty state, dan konfirmasi untuk aksi sensitif.
+
+### Menjalankan dan Memeriksa Aplikasi
+
+1. Ikuti langkah instalasi pada `README.md`; gunakan skema `database/migrations/schema.sql` dan seeder `database/seeds/seed.sql`.
+2. Docker Compose menjalankan seeder otomatis hanya saat volume database MySQL dibuat pertama kali. Impor manual diperlukan untuk volume database yang sudah ada.
+3. Admin seed awal menggunakan `admin` / `password`; seeder memakai `INSERT IGNORE`, sehingga tidak mereset akun yang telah ada.
+4. Sebelum menyatakan pekerjaan selesai, jalankan `php -l` pada semua berkas PHP yang diubah. Jalankan pemeriksaan fitur/read query dengan database pengembangan bila tersedia. Jangan melakukan restore, menghapus volume, atau mengubah kredensial database tanpa izin eksplisit.
+5. Pertahankan teks UI dalam Bahasa Indonesia, format Rupiah, dan zona waktu `Asia/Jakarta`. Perbarui dokumentasi langsung terkait bila rute, instalasi, atau perilaku operasional berubah.

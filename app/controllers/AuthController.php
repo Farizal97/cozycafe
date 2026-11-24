@@ -2,15 +2,19 @@
 
 declare(strict_types=1);
 
+require_once dirname(__DIR__) . '/services/LogService.php';
+
 final class AuthController
 {
     private const MAX_FAILED_ATTEMPTS = 5;
     private const LOCK_MINUTES = 15;
+    private readonly LogService $logs;
 
     public function __construct(
         private readonly PDO $pdo,
         private readonly string $basePath
     ) {
+        $this->logs = new LogService($pdo);
     }
 
     public function login(): never
@@ -75,7 +79,7 @@ final class AuthController
     {
         $adminId = (int) ($_SESSION['admin_id'] ?? 0);
         $username = (string) ($_SESSION['admin_username'] ?? '');
-        $this->writeActivity(
+        $this->logs->record(
             $adminId > 0 ? $adminId : null,
             'admin_logout',
             'admin',
@@ -115,7 +119,7 @@ final class AuthController
                 'UPDATE admins SET username = :username WHERE id = :id'
             );
             $statement->execute(['username' => $username, 'id' => $adminId]);
-            $this->writeActivity(
+            $this->logs->record(
                 $adminId,
                 'admin_profile_updated',
                 'admin',
@@ -179,7 +183,7 @@ final class AuthController
                 'UPDATE admins SET password_hash = :password_hash WHERE id = :id'
             );
             $statement->execute(['password_hash' => $passwordHash, 'id' => $adminId]);
-            $this->writeActivity(
+            $this->logs->record(
                 $adminId,
                 'admin_password_updated',
                 'admin',
@@ -269,7 +273,7 @@ final class AuthController
                  VALUES (:username, :ip_address, 1)'
             );
             $statement->execute(['username' => $username, 'ip_address' => $ipAddress]);
-            $this->writeActivity(
+            $this->logs->record(
                 $adminId,
                 'admin_login',
                 'admin',
@@ -330,7 +334,7 @@ final class AuthController
                 'ip_address' => $ipAddress,
                 'locked_until' => $lockedUntil,
             ]);
-            $this->writeActivity(
+            $this->logs->record(
                 null,
                 $lockedUntil === null ? 'admin_login_failed' : 'admin_login_locked',
                 'admin',
@@ -353,34 +357,6 @@ final class AuthController
         }
 
         return [$failedAttempts, $lockedUntil];
-    }
-
-    private function writeActivity(
-        ?int $adminId,
-        string $action,
-        string $entityType,
-        ?int $entityId,
-        ?array $beforeData,
-        ?array $afterData
-    ): void {
-        $statement = $this->pdo->prepare(
-            'INSERT INTO activity_logs
-                (admin_id, action, entity_type, entity_id, before_data, after_data)
-             VALUES
-                (:admin_id, :action, :entity_type, :entity_id, :before_data, :after_data)'
-        );
-        $statement->execute([
-            'admin_id' => $adminId,
-            'action' => $action,
-            'entity_type' => $entityType,
-            'entity_id' => $entityId,
-            'before_data' => $beforeData === null
-                ? null
-                : json_encode($beforeData, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
-            'after_data' => $afterData === null
-                ? null
-                : json_encode($afterData, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
-        ]);
     }
 
     private function url(string $path): string

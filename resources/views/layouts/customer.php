@@ -1,3 +1,8 @@
+<?php
+$flashType = is_array($flash ?? null) && in_array($flash['type'] ?? '', ['success', 'danger', 'warning', 'info'], true)
+    ? $flash['type']
+    : 'info';
+?>
 <!doctype html>
 <html lang="id">
 <head>
@@ -31,6 +36,11 @@
             </div>
         </div>
     </nav>
+    <?php if (is_array($flash ?? null)): ?>
+        <div class="container customer-flash">
+            <div class="alert alert-<?= e($flashType) ?> mb-0" role="alert"><?= e($flash['message'] ?? '') ?></div>
+        </div>
+    <?php endif; ?>
     <?php endif; ?>
 
     <?= $content ?? '' ?>
@@ -48,6 +58,7 @@
             </div>
         </div>
     </footer>
+    <div class="cart-toast" id="cartToast" role="status" aria-live="polite"></div>
     <?php endif; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= e($assetUrl('assets/js/app.js')) ?>"></script>

@@ -26,7 +26,7 @@ ob_start();
         </div>
         <span class="status-pill">Fondasi aktif</span>
     </div>
-    <p>Kerangka dashboard dan autentikasi sudah siap. Modul operasional akan diaktifkan pada tahap implementasi berikutnya.</p>
+    <p>Dashboard, katalog, inventaris, laporan, dan audit aktivitas tersedia. Modul operasional lain akan diaktifkan bertahap.</p>
     <a class="btn btn-cozy-primary" href="<?= e($url('admin/profile')) ?>">Kelola Akun Admin</a>
 </section>
 <?php

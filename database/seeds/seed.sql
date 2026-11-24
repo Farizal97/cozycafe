@@ -5,7 +5,7 @@ SET time_zone = '+07:00';
 
 -- Kredensial awal: username admin, password password. Segera ganti setelah login pertama.
 INSERT IGNORE INTO admins (id, username, password_hash)
-VALUES (1, 'admin', '$2y$10$ltIsi2/s0Q2GoY6Fztlkgud3pKpwW6ndhV/K10rrmgZrTn9rXO2EO');
+VALUES (1, 'admin', '$2y$10$SUpERpsFGD8hQBEpDC7rbecHJKgV7bjUu111JMdsc9HqpgVRpY7zW');
 
 INSERT IGNORE INTO categories (id, name, description, is_active) VALUES
     (1, 'Kopi', 'Pilihan minuman berbasis kopi.', 1),
@@ -56,7 +56,9 @@ INSERT IGNORE INTO cafe_settings (id, setting_key, setting_value) VALUES
     (1, 'tax_percentage', '10'),
     (2, 'service_charge_percentage', '5'),
     (3, 'booking_confirmation_mode', 'manual'),
-    (4, 'table_session_duration_minutes', '180');
+    (4, 'table_session_duration_minutes', '180'),
+    (5, 'tax_enabled', '1'),
+    (6, 'service_charge_enabled', '1');
 
 INSERT IGNORE INTO operating_hours (id, day_of_week, opening_time, closing_time, is_open) VALUES
     (1, 1, '09:00:00', '22:00:00', 1),
